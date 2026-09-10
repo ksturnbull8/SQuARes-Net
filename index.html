@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQuARes Net — SESSA Trainee Research Network</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F7F7F4;
+    --paper-raised:#FFFFFF;
+    --teal:#0A1EF2;
+    --teal-deep:#081665;
+    --sky:#73BEF8;
+    --ochre:#B98A3E;
+    --ochre-soft:#EFE1C6;
+    --coral:#B24A38;
+    --ink:#12142B;
+    --ink-soft:#565F6E;
+    --line:#DEE1DD;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:16px;
+    line-height:1.6;
+  }
+  h1,h2,h3{
+    font-family:'Fraunces', serif;
+    margin:0;
+    color:var(--ink);
+  }
+  a{color:inherit;}
+  .wrap{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 28px;
+  }
+
+  /* ---------- Header / Hero ---------- */
+  header.hero{
+    background:var(--teal-deep);
+    color:#F2F3EF;
+    padding:64px 0 56px;
+    position:relative;
+    overflow:hidden;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+    background-size:38px 38px;
+  }
+  header.hero::before{
+    content:"";
+    position:absolute;
+    top:-90px;
+    right:-70px;
+    width:420px;
+    height:420px;
+    border:5px solid rgba(10,30,242,0.5);
+    pointer-events:none;
+  }
+  header.hero::after{
+    content:"";
+    position:absolute;
+    top:110px;
+    right:60px;
+    width:230px;
+    height:230px;
+    border:5px solid rgba(115,190,248,0.55);
+    pointer-events:none;
+  }
+  .hero-inner{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:40px;
+    flex-wrap:wrap;
+    position:relative;
+  }
+  .hero-text{
+    max-width:760px;
+    opacity:0;
+    animation:hero-in 0.7s ease-out forwards;
+  }
+  @keyframes hero-in{
+    from{opacity:0; transform:translateY(10px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+  .hero-text h1{
+    font-size:3.3rem;
+    line-height:1.1;
+    color:#F7F6F0;
+    font-weight:700;
+    letter-spacing:-0.01em;
+  }
+  .hero-text h1 .accent{color:var(--sky);}
+  .hero-rule{
+    width:64px;
+    height:4px;
+    background:var(--ochre);
+    margin-top:16px;
+    border:none;
+  }
+  .hero-text .full-name{
+    margin-top:12px;
+    font-size:1.05rem;
+    color:var(--ochre-soft);
+    font-weight:500;
+  }
+  .hero-text p{
+    margin-top:18px;
+    color:#D8E0DB;
+    max-width:52ch;
+  }
+  .nav-row{
+    margin-top:28px;
+    display:flex;
+    gap:22px;
+    flex-wrap:wrap;
+    font-size:0.95rem;
+  }
+  .nav-row a{
+    color:#EFE7D2;
+    text-decoration:none;
+    border-bottom:1px solid rgba(239,231,210,0.4);
+    padding-bottom:2px;
+  }
+  .nav-row a:hover{border-bottom-color:#EFE7D2;}
+
+  .trust-row{
+    margin-top:44px;
+    padding-top:24px;
+    border-top:1px solid rgba(239,231,210,0.22);
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px 32px;
+  }
+  .trust-item{
+    font-size:0.86rem;
+    color:var(--ochre-soft);
+    font-weight:500;
+  }
+  .trust-item::before{
+    content:"";
+    display:inline-block;
+    width:6px;
+    height:6px;
+    background:var(--ochre);
+    margin-right:9px;
+    vertical-align:middle;
+  }
+
+  /* footer logo */
+  .footer-inner{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:24px;
+    flex-wrap:wrap;
+  }
+  .footer-inner p{margin:0; max-width:60ch;}
+  .footer-logo{
+    height:56px;
+    width:auto;
+    flex-shrink:0;
+  }
+  @media (max-width:620px){
+    .footer-inner{flex-direction:column; text-align:center;}
+  }
+
+  /* ---------- Section shell ---------- */
+  section{
+    padding:56px 0;
+    border-bottom:1px solid var(--line);
+  }
+  section:last-of-type{border-bottom:none;}
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:28px;
+    flex-wrap:wrap;
+  }
+  .section-head h2{
+    font-size:1.75rem;
+  }
+  .section-head .count{
+    color:var(--ink-soft);
+    font-size:0.9rem;
+  }
+
+  /* ---------- Projects (two columns, pinboard style) ---------- */
+  .projects-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:24px;
+  }
+  .project-col{
+    padding:24px;
+    background:repeating-linear-gradient(45deg, rgba(0,0,0,0.025) 0px, rgba(0,0,0,0.025) 1px, transparent 1px, transparent 7px), #E9E2D0;
+    border-radius:6px;
+  }
+  .project-col h3{
+    font-size:1.05rem;
+    color:var(--teal);
+    margin-bottom:18px;
+    padding-bottom:10px;
+    border-bottom:2px solid var(--teal);
+  }
+  .project-item{
+    position:relative;
+    padding:16px 14px 14px;
+    margin-bottom:20px;
+    border-radius:3px;
+    box-shadow:0 8px 14px -5px rgba(35,20,5,0.3);
+    transform:rotate(var(--rot, -1.2deg));
+    transition:transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .project-item:nth-child(3n+1){--rot:-1.3deg;}
+  .project-item:nth-child(3n+2){--rot:1deg;}
+  .project-item:nth-child(3n+3){--rot:-0.5deg;}
+  .project-item:hover{
+    transform:rotate(0deg) translateY(-3px);
+    box-shadow:0 14px 18px -6px rgba(35,20,5,0.35);
+    z-index:2;
+  }
+  .project-item:last-child{margin-bottom:0;}
+  .project-item::before{
+    content:"";
+    position:absolute;
+    top:-7px;
+    left:50%;
+    transform:translateX(-50%);
+    width:13px;
+    height:13px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #fff5, var(--pin-color, var(--teal)) 70%);
+    box-shadow:0 3px 5px rgba(0,0,0,0.4);
+  }
+  #anaesthetic-projects .project-item{background:#E7EEFD; --pin-color:var(--teal);}
+  #icu-projects .project-item{background:#E4F3EA; --pin-color:#3E9A6D;}
+  .project-cat{
+    font-size:0.85rem;
+    font-weight:700;
+    color:var(--teal-deep);
+    background:rgba(255,255,255,0.6);
+    display:inline-block;
+    padding:3px 10px;
+    margin:0 0 12px;
+    transform:rotate(-1deg);
+  }
+  .project-cat:not(:first-child){margin-top:26px;}
+  .project-item h4{
+    margin:0 0 4px;
+    font-size:1rem;
+    font-weight:600;
+  }
+  .project-item p{
+    margin:0;
+    color:var(--ink-soft);
+    font-size:0.92rem;
+  }
+  .project-item .lead{
+    display:inline-block;
+    margin-top:8px;
+    font-size:0.8rem;
+    color:var(--teal-deep);
+    font-weight:700;
+    font-family:'Kalam', cursive;
+    text-decoration:none;
+  }
+  a.lead:hover{text-decoration:underline;}
+
+  /* ---------- Needs a trainee band ---------- */
+  .needs-band{
+    background:var(--ochre-soft);
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+  }
+  .needs-band .section-head h2{color:var(--teal-deep);}
+  .needs-list{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+    gap:16px;
+  }
+  .needs-card{
+    background:var(--paper-raised);
+    border:1px solid #E3CE9C;
+    border-left:4px solid var(--coral);
+    border-radius:4px;
+    padding:18px 20px;
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .needs-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 20px rgba(178,74,56,0.12);
+  }
+  .needs-card h4{
+    margin:0 0 6px;
+    font-size:1rem;
+  }
+  .needs-card p{
+    margin:0;
+    font-size:0.9rem;
+    color:var(--ink-soft);
+  }
+  .needs-card .tag{
+    display:inline-block;
+    margin-top:12px;
+    font-size:0.76rem;
+    font-weight:600;
+    color:var(--coral);
+    background:#F4E3DD;
+    padding:3px 9px;
+  }
+  .needs-contact{
+    display:block;
+    margin-top:10px;
+    font-size:0.82rem;
+    color:var(--teal-deep);
+    text-decoration:none;
+    font-weight:600;
+  }
+  a.needs-contact:hover{text-decoration:underline;}
+
+  /* ---------- How it works ---------- */
+  .steps-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:20px;
+  }
+  .step{
+    padding:24px 20px;
+    background:var(--paper-raised);
+    border-radius:6px;
+    box-shadow:0 4px 14px rgba(18,20,43,0.07);
+  }
+  .step-num{
+    display:block;
+    font-family:'Fraunces', serif;
+    font-size:1.6rem;
+    color:var(--ochre);
+    font-weight:600;
+    margin-bottom:10px;
+  }
+  .step h4{
+    margin:0 0 8px;
+    font-size:1rem;
+    font-weight:600;
+    color:var(--teal);
+  }
+  .step p{
+    margin:0;
+    font-size:0.88rem;
+    color:var(--ink-soft);
+  }
+  @media (max-width: 760px){
+    .steps-grid{grid-template-columns:1fr;}
+  }
+
+  /* ---------- Annual QI Day ---------- */
+  .qi-day-banner{
+    margin-bottom:28px;
+    overflow:hidden;
+    border-radius:6px;
+  }
+  .qi-day-banner img{
+    display:block;
+    width:100%;
+    height:auto;
+    max-height:320px;
+    object-fit:cover;
+  }
+  .qi-day-shell{
+    display:grid;
+    grid-template-columns:1fr 1.1fr;
+    gap:40px;
+    background:var(--paper-raised);
+    border-radius:6px;
+    box-shadow:0 4px 14px rgba(18,20,43,0.07);
+    padding:32px;
+  }
+  .qi-day-year{
+    display:inline-block;
+    background:var(--ochre-soft);
+    color:var(--teal-deep);
+    font-weight:700;
+    font-size:0.95rem;
+    padding:4px 12px;
+    margin-bottom:12px;
+  }
+  .qi-day-when{
+    font-weight:600;
+    margin:0 0 12px;
+  }
+  .qi-day-info p{color:var(--ink-soft); margin:0;}
+  .qi-day-info p + p{margin-top:12px;}
+  .qi-day-format h4{
+    font-size:1rem;
+    color:var(--teal);
+    margin-bottom:12px;
+  }
+  .qi-day-format ul{
+    margin:0;
+    padding-left:0;
+    list-style:none;
+  }
+  .qi-day-format li{
+    position:relative;
+    padding-left:18px;
+    margin-bottom:10px;
+    color:var(--ink-soft);
+    font-size:0.92rem;
+  }
+  .qi-day-format li::before{
+    content:"";
+    position:absolute;
+    left:0;
+    top:8px;
+    width:6px;
+    height:6px;
+    background:var(--ochre);
+  }
+  .qi-day-next{
+    margin-top:20px;
+    font-size:0.88rem;
+    color:var(--ink-soft);
+    font-style:italic;
+  }
+  .qi-day-cta{
+    margin-top:20px;
+    display:flex;
+    align-items:center;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .qi-day-btn{
+    display:inline-block;
+    background:var(--teal);
+    color:#F2F3EF;
+    text-decoration:none;
+    font-weight:600;
+    font-size:0.92rem;
+    padding:10px 22px;
+    border-radius:4px;
+    transition:background 0.15s ease;
+  }
+  .qi-day-btn:hover{background:var(--teal-deep);}
+  .qi-day-btn.secondary{
+    background:transparent;
+    color:var(--teal);
+    border:1px solid var(--teal);
+  }
+  .qi-day-btn.secondary:hover{background:var(--teal); color:#F2F3EF;}
+  .qi-day-btn.disabled{
+    color:var(--ink-soft);
+    border-color:var(--line);
+    cursor:default;
+    font-style:italic;
+    font-weight:500;
+  }
+  .qi-day-btn.disabled:hover{background:transparent; color:var(--ink-soft);}
+  .qi-day-deadline{
+    font-size:0.85rem;
+    color:var(--coral);
+    font-weight:600;
+  }
+  @media (max-width:760px){
+    .qi-day-shell{grid-template-columns:1fr; padding:24px;}
+  }
+
+  /* ---------- Committee ---------- */
+  .committee-grid-inner{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+    gap:22px;
+  }
+  .member{
+    display:flex;
+    gap:14px;
+    align-items:flex-start;
+    padding:10px;
+    margin:-10px;
+    transition:background 0.15s ease;
+  }
+  .member:hover{background:var(--paper-raised);}
+  .member .avatar{
+    width:48px;
+    height:48px;
+    flex-shrink:0;
+    background:var(--teal);
+    color:#F2F3EF;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:1.05rem;
+    border-radius:6px;
+  }
+  .avatar.role-chair{background:var(--teal);}
+  .avatar.role-secretary{background:var(--sky); color:var(--teal-deep);}
+  .avatar.role-member{background:#CBD2E0; color:var(--teal-deep);}
+
+  .committee-group + .committee-group{margin-top:30px;}
+  .committee-group h3{
+    font-size:0.92rem;
+    font-weight:600;
+    color:var(--ochre);
+    margin-bottom:16px;
+    padding-bottom:8px;
+    border-bottom:1px solid var(--line);
+  }
+  .member h4{
+    margin:0;
+    font-size:0.98rem;
+    font-weight:600;
+  }
+  .member p{
+    margin:2px 0 0;
+    font-size:0.86rem;
+    color:var(--ink-soft);
+  }
+  .member-email{
+    display:block;
+    margin-top:4px;
+    font-size:0.8rem;
+    color:var(--teal);
+    text-decoration:none;
+    word-break:break-all;
+  }
+  .member-email:hover{text-decoration:underline;}
+
+  /* ---------- Contact ---------- */
+  .contact-shell{
+    display:grid;
+    grid-template-columns:1fr 1.2fr;
+    gap:40px;
+  }
+  .contact-intro p{color:var(--ink-soft); max-width:38ch;}
+  .contact-details{
+    margin-top:28px;
+    padding-top:22px;
+    border-top:1px solid var(--line);
+  }
+  .contact-details p{
+    margin:0 0 14px;
+    font-size:0.9rem;
+  }
+  .contact-details strong{
+    display:block;
+    font-size:0.78rem;
+    text-transform:none;
+    color:var(--teal);
+    margin-bottom:2px;
+  }
+  .contact-details a{
+    color:var(--ink);
+    text-decoration:none;
+    border-bottom:1px solid var(--line);
+  }
+  form{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  label{
+    font-size:0.86rem;
+    font-weight:600;
+    color:var(--ink);
+  }
+  input, textarea{
+    font-family:inherit;
+    font-size:0.95rem;
+    padding:10px 12px;
+    border:1px solid var(--line);
+    border-radius:4px;
+    background:var(--paper-raised);
+    color:var(--ink);
+  }
+  input:focus, textarea:focus{
+    outline:2px solid var(--teal);
+    outline-offset:1px;
+    border-color:var(--teal);
+  }
+  textarea{resize:vertical; min-height:110px;}
+  button{
+    align-self:flex-start;
+    margin-top:6px;
+    background:var(--teal);
+    color:#F2F3EF;
+    border:none;
+    border-radius:4px;
+    padding:12px 26px;
+    font-family:inherit;
+    font-size:0.95rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:background 0.15s ease, transform 0.15s ease;
+  }
+  button:hover{background:var(--teal-deep); transform:translateY(-1px);}
+  button:focus-visible{outline:2px solid var(--ochre); outline-offset:2px;}
+
+  footer{
+    padding:36px 0 48px;
+    color:var(--ink-soft);
+    font-size:0.86rem;
+    background:var(--paper-raised);
+    border-top:1px solid var(--line);
+  }
+
+  .loading-note, .empty-note{
+    color:var(--ink-soft);
+    font-size:0.9rem;
+    font-style:italic;
+    margin:0;
+  }
+
+  @media (max-width: 760px){
+    .hero-inner{flex-direction:column; align-items:flex-start;}
+    .projects-grid{grid-template-columns:1fr;}
+    .contact-shell{grid-template-columns:1fr;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    .hero-text{animation:none; opacity:1;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap hero-inner">
+    <div class="hero-text">
+      <h1>SQuARes <span class="accent">Net</span></h1>
+      <hr class="hero-rule">
+      <p class="full-name">SESSA Quality Improvement, Audit and Research Network</p>
+      <p>Your local Trainee Research Network — support, contacts and advice for QI, audit and research, and SESSA's link into UK-wide trainee-led projects.</p>
+      <div class="nav-row">
+        <a href="#projects">Projects</a>
+        <a href="#needs-help">Needs a trainee</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="#qi-day">QI Day</a>
+        <a href="#committee">Committee</a>
+        <a href="#contact">Get in touch</a>
+      </div>
+    </div>
+  </div>
+  <div class="wrap trust-row">
+    <span class="trust-item">SESSA's Trainee Research Network</span>
+    <span class="trust-item">Affiliated UK-wide TRN federation member</span>
+    <span class="trust-item">Annual SESSA QI Day</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- ================= PROJECTS ================= -->
+  <section id="projects">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Current projects</h2>
+        <span class="count">Anaesthetics &amp; ICU</span>
+      </div>
+      <div class="projects-grid">
+        <div class="project-col">
+          <h3>Anaesthetics</h3>
+          <div id="anaesthetic-projects">
+            <p class="loading-note">Loading projects…</p>
+          </div>
+        </div>
+        <div class="project-col">
+          <h3>ICU</h3>
+          <div id="icu-projects">
+            <p class="loading-note">Loading projects…</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= NEEDS A TRAINEE ================= -->
+  <section id="needs-help" class="needs-band">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Projects needing a trainee</h2>
+        <span class="count">Pick one up, or take one over as others rotate</span>
+      </div>
+      <div class="needs-list" id="needs-list">
+        <p class="loading-note">Loading…</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= HOW IT WORKS ================= -->
+  <section id="how-it-works">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>How it works</h2>
+        <span class="count">Getting involved in a project</span>
+      </div>
+      <div class="steps-grid">
+        <div class="step">
+          <span class="step-num">1</span>
+          <h4>Get in touch</h4>
+          <p>Reach out to the committee with what you're interested in — QI, audit or research — and we'll point you in the right direction.</p>
+        </div>
+        <div class="step">
+          <span class="step-num">2</span>
+          <h4>Pick a project</h4>
+          <p>Join a project already running in anaesthetics or ICU, pick up one flagged as needing a trainee, or bring an idea of your own.</p>
+        </div>
+        <div class="step">
+          <span class="step-num">3</span>
+          <h4>Get support</h4>
+          <p>We offer advice, contacts and continuity as trainees rotate, so your project can run through to completion rather than stalling.</p>
+        </div>
+        <div class="step">
+          <span class="step-num">4</span>
+          <h4>Present your work</h4>
+          <p>Showcase what you've done at the annual SESSA QI Day, alongside educational content mapped to the curriculum's QI outcomes.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ANNUAL QI DAY ================= -->
+  <section id="qi-day">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Annual SESSA QI Day</h2>
+        <span class="count">Showcasing trainee work each autumn</span>
+      </div>
+      <div class="qi-day-banner">
+        <img src="qiday-momentum.jpg" alt="SESSA QI Day 2026 — Momentum">
+      </div>
+      <div class="qi-day-shell">
+        <div class="qi-day-info">
+          <span class="qi-day-year">2026 — "Momentum"</span>
+          <p class="qi-day-when">26th November, 9:00–16:00 · Paderewski Lecture Theatre, Western General Hospital</p>
+          <p>A day dedicated to building and sustaining quality improvement across anaesthetics and beyond — free to attend, and open to resident doctors, SAS doctors, medical students, AHPs and consultants alike.</p>
+        </div>
+        <div class="qi-day-format">
+          <h4>What the day looks like</h4>
+          <ul>
+            <li>Expert speakers sharing real stories of change — what worked, what didn't, and how to keep momentum going</li>
+            <li>Trainee oral presentations and a poster session, with cash prizes on offer</li>
+            <li>Abstracts welcome on any audit or QI project, whatever the size</li>
+            <li>Social afterwards at The Raeburn, Stockbridge</li>
+          </ul>
+        </div>
+      </div>
+      <div class="qi-day-cta">
+        <a class="qi-day-btn" href="https://www.eventbrite.co.uk/e/momentum-sessa-qi-day-2026-hosted-by-squares-net-tickets-2000390898025?aff=oddtdtcreator" target="_blank" rel="noopener">Register to attend</a>
+        <a class="qi-day-btn secondary" href="https://docs.google.com/forms/d/e/1FAIpQLSdXt4V05AiHj4q7KdYbC9YngHGVOs9HnTeb6JBH4khU2W4RgA/viewform" target="_blank" rel="noopener">Submit an abstract</a>
+        <span class="qi-day-btn secondary disabled">Programme — coming soon</span>
+        <span class="qi-day-deadline">Abstract deadline: 16th October</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= COMMITTEE ================= -->
+  <section id="committee">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Committee</h2>
+        <span class="count">Who to contact</span>
+      </div>
+      <div class="committee-grid" id="committee-grid">
+        <p class="loading-note">Loading…</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CONTACT ================= -->
+  <section id="contact">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Get in touch</h2>
+        <span class="count">Questions, projects, or getting involved</span>
+      </div>
+      <div class="contact-shell">
+        <div class="contact-intro">
+          <p>Starting a project, need advice on QI or audit methodology, or want to get involved in a national study — send us a note and the right committee member will get back to you.</p>
+          <div class="contact-details">
+            <p><strong>Email</strong><br><a href="mailto:katie.turnbull@nhs.scot">katie.turnbull@nhs.scot</a></p>
+            <p><strong>SESSA</strong><br>South East Scotland School of Anaesthesia</p>
+          </div>
+        </div>
+        <form id="contact-form">
+          <div>
+            <label for="name">Name</label><br>
+            <input type="text" id="name" name="name" required style="width:100%">
+          </div>
+          <div>
+            <label for="email">Email</label><br>
+            <input type="email" id="email" name="email" required style="width:100%">
+          </div>
+          <div>
+            <label for="message">Message</label><br>
+            <textarea id="message" name="message" required style="width:100%"></textarea>
+          </div>
+          <button type="submit">Send message</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap footer-inner">
+    <p>SQuARes Net is SESSA's Trainee Research Network, affiliated with the UK-wide federation of anaesthetic Trainee Research Networks.</p>
+    <img src="logo.jpg" alt="SQuARes Net logo" class="footer-logo">
+  </div>
+</footer>
+
+<script>
+  // Contact form: currently opens the user's email client with the
+  // message pre-filled (no backend required on GitHub Pages).
+  // Swap CONTACT_EMAIL for the address submissions should go to.
+  const CONTACT_EMAIL = "katie.turnbull@nhs.scot";
+
+  document.getElementById('contact-form').addEventListener('submit', function(e){
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const message = document.getElementById('message').value;
+    const subject = encodeURIComponent('SQuARes Net enquiry from ' + name);
+    const body = encodeURIComponent(message + '\n\n— ' + name + ' (' + email + ')');
+    window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+  });
+
+  /* ================================================================
+     Google Sheet–powered content
+     ================================================================
+     Set up ONE Google Sheet with four tabs, named exactly:
+       Anaesthetics | ICU | NeedsHelp | Committee
+
+     Columns (first row = headers, exact names matter):
+       Anaesthetics / ICU tabs:  Title | Description | Lead | Email | Category
+       (Category should be one of: Research, Audit, Quality Improvement)
+       NeedsHelp tab:            Title | Description | Tag | Contact | Email
+       Committee tab:            Name  | Role | Email
+
+     Then: File → Share → Publish to web → choose the specific
+     sheet/tab → CSV → Publish, and paste each tab's link below.
+     Each tab needs its own separate "Publish to web" link.
+     ================================================================ */
+
+  const SHEET_URLS = {
+    anaesthetics: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTKFWjb-OuNs4LqhJDdChQk9TlZ0yTMgUwMWsMLZrCXYcfLClDaCboV5rb23ax7nR3t2yyxpNbq14jW/pub?gid=0&single=true&output=csv",
+    icu:          "https://docs.google.com/spreadsheets/d/e/2PACX-1vTKFWjb-OuNs4LqhJDdChQk9TlZ0yTMgUwMWsMLZrCXYcfLClDaCboV5rb23ax7nR3t2yyxpNbq14jW/pub?gid=191647217&single=true&output=csv",
+    needsHelp:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTKFWjb-OuNs4LqhJDdChQk9TlZ0yTMgUwMWsMLZrCXYcfLClDaCboV5rb23ax7nR3t2yyxpNbq14jW/pub?gid=937783886&single=true&output=csv",
+    committee:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTKFWjb-OuNs4LqhJDdChQk9TlZ0yTMgUwMWsMLZrCXYcfLClDaCboV5rb23ax7nR3t2yyxpNbq14jW/pub?gid=920700483&single=true&output=csv",
+  };
+
+  // Shown until the Committee tab above is connected — once
+  // SHEET_URLS.committee is set, the live sheet takes over from this.
+  const FALLBACK_COMMITTEE = [
+    { Name: "Rosie Seatter",     Role: "Chair" },
+    { Name: "Rackesh Patel",     Role: "Chair" },
+    { Name: "Giorgi Passerello", Role: "Secretary" },
+    { Name: "Jack Cafferkey",    Role: "Member" },
+    { Name: "Lisa Dewar",        Role: "Member" },
+    { Name: "Mathew Lyons",      Role: "Member" },
+    { Name: "Dan Lynch",         Role: "Member" },
+    { Name: "Steven McClune",    Role: "Member" },
+    { Name: "Charlie Reid",      Role: "Member" },
+    { Name: "Katie Turnbull",    Role: "Member" },
+    { Name: "Freddie Stourton",  Role: "Member" },
+    { Name: "Ben Jacques",       Role: "Member" },
+    { Name: "Bara Kubanova",     Role: "Member" },
+    { Name: "Olga White",        Role: "Member" },
+    { Name: "Emma Bhatti",       Role: "Member" },
+    { Name: "Matilda Williams",  Role: "Member" },
+  ];
+
+  // Minimal CSV parser — handles quoted fields containing commas.
+  function parseCSV(text){
+    const rows = [];
+    let row = [], field = '', inQuotes = false;
+    for (let i = 0; i < text.length; i++){
+      const c = text[i], next = text[i+1];
+      if (inQuotes){
+        if (c === '"' && next === '"'){ field += '"'; i++; }
+        else if (c === '"'){ inQuotes = false; }
+        else { field += c; }
+      } else {
+        if (c === '"'){ inQuotes = true; }
+        else if (c === ','){ row.push(field); field = ''; }
+        else if (c === '\n' || c === '\r'){
+          if (field !== '' || row.length){ row.push(field); rows.push(row); }
+          field = ''; row = [];
+          if (c === '\r' && next === '\n') i++;
+        } else { field += c; }
+      }
+    }
+    if (field !== '' || row.length){ row.push(field); rows.push(row); }
+    if (!rows.length) return [];
+    const headers = rows[0].map(h => h.trim());
+    return rows.slice(1)
+      .filter(r => r.some(cell => cell.trim() !== ''))
+      .map(r => Object.fromEntries(headers.map((h, i) => [h, (r[i] || '').trim()])));
+  }
+
+  function escapeHTML(str){
+    return (str || '').replace(/[&<>"']/g, c => ({
+      '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+    }[c]));
+  }
+
+  async function fetchSheet(url){
+    if (!url || url.startsWith('PASTE_')) return null;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Sheet fetch failed: ' + res.status);
+    return parseCSV(await res.text());
+  }
+
+  function renderProjects(containerId, rows){
+    const el = document.getElementById(containerId);
+    if (!rows){ el.querySelector('.loading-note').textContent = 'Not connected yet.'; return; }
+    if (!rows.length){ el.querySelector('.loading-note').textContent = 'No projects listed yet.'; return; }
+    el.innerHTML = '';
+
+    const order = ['Research', 'Audit', 'Quality Improvement'];
+    const groups = {};
+    rows.forEach(r => {
+      const cat = order.includes(r.Category) ? r.Category : 'Other';
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(r);
+    });
+
+    [...order, ...Object.keys(groups).filter(k => !order.includes(k))].forEach(cat => {
+      const items = groups[cat];
+      if (!items || !items.length) return;
+
+      const heading = document.createElement('h4');
+      heading.className = 'project-cat';
+      heading.textContent = cat;
+      el.appendChild(heading);
+
+      items.forEach(r => {
+        const item = document.createElement('div');
+        item.className = 'project-item';
+        const leadHTML = r.Lead
+          ? (r.Email
+              ? `<a class="lead" href="mailto:${escapeHTML(r.Email)}">Lead: ${escapeHTML(r.Lead)}</a>`
+              : `<span class="lead">Lead: ${escapeHTML(r.Lead)}</span>`)
+          : '';
+        item.innerHTML = `
+          <h4>${escapeHTML(r.Title)}</h4>
+          <p>${escapeHTML(r.Description)}</p>
+          ${leadHTML}
+        `;
+        el.appendChild(item);
+      });
+    });
+  }
+
+  function renderNeedsHelp(rows){
+    const el = document.getElementById('needs-list');
+    el.innerHTML = '';
+    if (!rows){ el.innerHTML = '<p class="empty-note">Not connected yet.</p>'; return; }
+    if (!rows.length){ el.innerHTML = '<p class="empty-note">Nothing needs a trainee right now — check back soon.</p>'; return; }
+    rows.forEach(r => {
+      const card = document.createElement('div');
+      card.className = 'needs-card';
+      const contactHTML = r.Contact
+        ? (r.Email
+            ? `<a class="needs-contact" href="mailto:${escapeHTML(r.Email)}">Contact: ${escapeHTML(r.Contact)}</a>`
+            : `<span class="needs-contact">Contact: ${escapeHTML(r.Contact)}</span>`)
+        : '';
+      card.innerHTML = `
+        <h4>${escapeHTML(r.Title)}</h4>
+        <p>${escapeHTML(r.Description)}</p>
+        ${r.Tag ? `<span class="tag">${escapeHTML(r.Tag)}</span>` : ''}
+        ${contactHTML}
+      `;
+      el.appendChild(card);
+    });
+  }
+
+  function renderCommittee(rows){
+    const el = document.getElementById('committee-grid');
+    el.innerHTML = '';
+    if (!rows){ el.innerHTML = '<p class="empty-note">Not connected yet.</p>'; return; }
+    if (!rows.length){ el.innerHTML = '<p class="empty-note">Committee list coming soon.</p>'; return; }
+
+    const order = ['Chair', 'Secretary', 'Member'];
+    const groups = {};
+    rows.forEach(r => {
+      const role = r.Role || 'Member';
+      const key = order.includes(role) ? role : 'Other';
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(r);
+    });
+
+    [...order, ...Object.keys(groups).filter(k => !order.includes(k))].forEach(key => {
+      const members = groups[key];
+      if (!members || !members.length) return;
+      const roleClass = 'role-' + key.toLowerCase();
+      const wrap = document.createElement('div');
+      wrap.className = 'committee-group';
+      const heading = document.createElement('h3');
+      heading.textContent = members.length > 1 ? key + 's' : key;
+      wrap.appendChild(heading);
+      const grid = document.createElement('div');
+      grid.className = 'committee-grid-inner';
+      members.forEach(r => {
+        const initials = (r.Name || '').split(' ').filter(Boolean).map(w => w[0]).slice(0,2).join('').toUpperCase();
+        const member = document.createElement('div');
+        member.className = 'member';
+        member.innerHTML = `
+          <div class="avatar ${roleClass}">${escapeHTML(initials)}</div>
+          <div>
+            <h4>${escapeHTML(r.Name)}</h4>
+            <p>${escapeHTML(r.Role)}</p>
+            ${r.Email ? `<a class="member-email" href="mailto:${escapeHTML(r.Email)}">${escapeHTML(r.Email)}</a>` : ''}
+          </div>
+        `;
+        grid.appendChild(member);
+      });
+      wrap.appendChild(grid);
+      el.appendChild(wrap);
+    });
+  }
+
+  async function loadDashboard(){
+    try {
+      const [anaes, icu, needs, committee] = await Promise.all([
+        fetchSheet(SHEET_URLS.anaesthetics),
+        fetchSheet(SHEET_URLS.icu),
+        fetchSheet(SHEET_URLS.needsHelp),
+        fetchSheet(SHEET_URLS.committee),
+      ]);
+      renderProjects('anaesthetic-projects', anaes);
+      renderProjects('icu-projects', icu);
+      renderNeedsHelp(needs);
+      renderCommittee(committee || FALLBACK_COMMITTEE);
+    } catch (err){
+      console.error('Failed to load dashboard data:', err);
+    }
+  }
+
+  loadDashboard();
+</script>
+
+</body>
+</html>
